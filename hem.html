@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyDay</title>
+
+  <link rel="stylesheet" href="hem.css" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#111827" />
+</head>
+
+<body>
+  <div id="overlay" class="overlay" onclick="closeAllPopups()"></div>
+
+  <button class="floating-button memory-button" onclick="openMemory()">◎</button>
+  <button class="floating-button settings-button" onclick="openSettings()">⚙️</button>
+
+  <main class="page">
+    <section class="app">
+
+      <section class="card top">
+        <div>
+          <div class="muted" id="dateText"></div>
+          <h1 id="greeting">God dag</h1>
+          <div id="dailySummary" class="summary"></div>
+          <div id="focusCard" class="focus-card"></div>
+        </div>
+
+        <div id="weatherCard" class="weather weather-card" onclick="openWeather()">
+          <div class="weather-header">
+            <div>
+              <div class="muted">Vädret</div>
+              <strong>☁️ 18°C</strong>
+              <div id="weatherCity" class="muted">Stockholm</div>
+            </div>
+
+            <button
+              id="weatherCloseBtn"
+              style="display:none;"
+              onclick="event.stopPropagation(); closeAllPopups()"
+            >
+              Stäng
+            </button>
+          </div>
+
+          <div id="forecast" class="forecast-grid" style="display:none;">
+            <div class="forecast-day">Mån<br>☁️<br><strong>18°</strong></div>
+            <div class="forecast-day">Tis<br>🌤️<br><strong>21°</strong></div>
+            <div class="forecast-day">Ons<br>🌧️<br><strong>16°</strong></div>
+            <div class="forecast-day">Tor<br>☀️<br><strong>23°</strong></div>
+            <div class="forecast-day">Fre<br>☀️<br><strong>24°</strong></div>
+            <div class="forecast-day">Lör<br>🌤️<br><strong>20°</strong></div>
+            <div class="forecast-day">Sön<br>🌧️<br><strong>17°</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <section class="card">
+          <h2>Idag</h2>
+          <div id="todayList" class="list"></div>
+        </section>
+
+        <section class="card">
+          <h2>Bra att veta idag</h2>
+          <div id="goodToKnowList" class="list"></div>
+        </section>
+      </section>
+
+      <section class="card assistant">
+        <div>
+          <h2>Vad kan jag hjälpa dig med?</h2>
+          <p class="muted">
+            Skriv naturligt. Exempel: “Jag vill fiska 13 augusti kl 15”.
+          </p>
+        </div>
+
+        <div id="chat" class="chat"></div>
+
+        <div class="input-row">
+          <input id="userInput" placeholder="Skriv här..." />
+          <button onclick="sendMessage()">→</button>
+        </div>
+      </section>
+
+      <section id="calendarCard" class="card calendar-card" onclick="openCalendar()">
+        <div class="calendar-header">
+          <div>
+            <div class="muted">Kalender</div>
+            <h2 id="monthTitle"></h2>
+          </div>
+
+          <div>
+            <button class="secondary" onclick="event.stopPropagation(); previousMonth()">←</button>
+            <button class="secondary" onclick="event.stopPropagation(); goToday()">Idag</button>
+            <button class="secondary" onclick="event.stopPropagation(); nextMonth()">→</button>
+            <button
+              id="closeBtn"
+              style="display:none;"
+              onclick="event.stopPropagation(); closeAllPopups()"
+            >
+              Stäng
+            </button>
+          </div>
+        </div>
+
+        <div class="weekdays">
+          <div class="weekday">Mån</div>
+          <div class="weekday">Tis</div>
+          <div class="weekday">Ons</div>
+          <div class="weekday">Tor</div>
+          <div class="weekday">Fre</div>
+          <div class="weekday">Lör</div>
+          <div class="weekday">Sön</div>
+        </div>
+
+        <div id="calendarGrid" class="calendar-grid"></div>
+      </section>
+
+      <section class="card evening-entry-card">
+        <div>
+          <div class="muted">Kvällsläge</div>
+          <h2>🌙 Kvällsreflektion</h2>
+          <p class="muted">Ta några minuter för dig själv när dagen är slut.</p>
+        </div>
+
+        <button onclick="openEveningMode()">Öppna reflektion</button>
+      </section>
+
+    </section>
+  </main>
+
+  <section id="dayPanel" class="card day-panel">
+    <div class="settings-header">
+      <div>
+        <div class="muted">Dagsvy</div>
+        <h1 id="selectedDayTitle"></h1>
+        <div id="selectedDaySummary" class="muted"></div>
+      </div>
+
+      <button onclick="closeAllPopups()">Stäng</button>
+    </div>
+
+    <h2>Bokat</h2>
+    <div id="selectedDayEvents" class="day-events"></div>
+
+    <h2 id="eventFormTitle">Lägg till</h2>
+
+    <div class="event-form">
+      <div>
+        <label>Vad?</label>
+        <div class="field">
+          <input id="newEventTitle" placeholder="Exempel: Handla" />
+        </div>
+      </div>
+
+      <div>
+        <label>Tid</label>
+        <div class="field">
+          <input id="newEventTime" placeholder="17:00" />
+        </div>
+      </div>
+
+      <div>
+        <label>Längd</label>
+        <div class="field">
+          <input id="newEventDuration" placeholder="60" />
+        </div>
+      </div>
+
+      <div>
+        <label>Anteckning</label>
+        <div class="field">
+          <textarea
+            id="newEventNote"
+            placeholder="Exempel:
+1 gurka
+1 macka
+1 päron"
+          ></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; align-items:end; flex-wrap:wrap;">
+        <button id="saveEventButton" onclick="addEventFromDayPanel()">Spara händelse</button>
+        <button class="secondary" onclick="resetEventForm()">Avbryt</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="settingsCard" class="card settings-card">
+    <div class="settings-header">
+      <div>
+        <div class="muted">Inställningar</div>
+        <h1>Anpassa</h1>
+      </div>
+
+      <button onclick="closeAllPopups()">Stäng</button>
+    </div>
+
+    <div class="settings-grid">
+      <div>
+        <label>Plats för väder</label>
+        <div class="field">
+          <input id="cityInput" placeholder="Stockholm" />
+        </div>
+      </div>
+
+      <div>
+        <label>Assistentens ton</label>
+        <div class="field">
+          <select id="styleInput">
+            <option>Professionell</option>
+            <option>Vänlig</option>
+            <option>Mer detaljerad</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label>Demo-data</label>
+        <button onclick="addDemoData()">Lägg till exempel</button>
+      </div>
+    </div>
+
+    <br />
+    <button onclick="saveSettings()">Spara</button>
+  </section>
+
+  <section id="memoryCard" class="card memory-card">
+    <div class="settings-header">
+      <div>
+        <div class="muted">Minnesbank</div>
+        <h1>Det jag känner till</h1>
+      </div>
+
+      <button onclick="closeAllPopups()">Stäng</button>
+    </div>
+
+    <div id="memoryView" class="grid"></div>
+    <br />
+    <button class="secondary" onclick="clearMemory()">Rensa minne</button>
+  </section>
+
+  <section id="eveningMode" class="evening-mode">
+    <div class="evening-shell">
+      <button class="secondary" onclick="closeEveningMode()">← Tillbaka till dagen</button>
+
+      <div class="evening-header">
+        <div class="muted">Kvällsreflektion</div>
+        <h1>🌙 Hur var dagen?</h1>
+        <p>Vad vill du få ur huvudet idag?</p>
+      </div>
+
+      <div class="reflection-methods">
+        <button class="method active">✍️ Skriv</button>
+        <button class="method" onclick="comingSoon('Röst')">🎙️ Prata</button>
+        <button class="method" onclick="comingSoon('Bild')">📷 Ta bild</button>
+      </div>
+
+      <textarea
+        id="reflectionInput"
+        placeholder="Skriv fritt. Det behöver inte vara perfekt."
+      ></textarea>
+
+      <button onclick="saveReflection()">Spara reflektion</button>
+
+      <div class="reflection-history">
+        <h2>Tidigare reflektioner</h2>
+        <div id="reflectionList" class="list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reflectionReader" class="reflection-reader">
+    <div class="reflection-reader-shell">
+      <button class="secondary" onclick="closeReflectionReader()">← Tillbaka</button>
+
+      <div class="evening-header">
+        <div class="muted">Reflektion</div>
+        <h1 id="reflectionReaderDate"></h1>
+      </div>
+
+      <div id="reflectionReaderText" class="reflection-reader-text"></div>
+
+      <button class="action danger" onclick="deleteOpenedReflection()">Ta bort reflektion</button>
+    </div>
+  </section>
+
+  <script src="hem.js"></script>
+</body>
+</html>
