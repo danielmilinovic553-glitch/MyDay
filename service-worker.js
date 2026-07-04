@@ -3,8 +3,8 @@ const CACHE_NAME = "min-dag-v1";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
-  "./hem.css",
-  "./hem.js",
+  "./style.css",
+  "./app.js",
   "./manifest.json"
 ];
 
